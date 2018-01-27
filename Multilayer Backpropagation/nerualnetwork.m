@@ -1,5 +1,5 @@
 function [error_te] = neuralnetwork(trainset, trainlabel, holdset, holdlabel, testset, testlabel, w1,w2)
-rate=0.0001;
+rate=0.01;
 num=0;
 epoch=0;
 trainerror=[];
