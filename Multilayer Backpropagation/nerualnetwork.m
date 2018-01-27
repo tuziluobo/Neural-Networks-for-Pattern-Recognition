@@ -23,8 +23,8 @@ while(1)
             t(minilabel(i)+1,i)=1;
         end
         delta1=z.*(1-z).*sum(w2*(t-y));
-        w1=w1+rate*minibatch*delta1';
-        w2=w2+rate*z*(t-y)';
+        w1=w1+rate*minibatch*delta1'/128;
+        w2=w2+rate*z*(t-y)'/128;
     end
     accu_h=0;
     a1_h=w1'*holdset;
