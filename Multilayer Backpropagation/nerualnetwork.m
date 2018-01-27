@@ -5,9 +5,12 @@ epoch=0;
 trainerror=[];
 holderror=[];
 trainaccu=[];
-
+for i=1:10000
+    t_h(holdlabel(i)+1,i)=1;
+    t_te(testlabel(i)+1,i)=1;
+end
 while(1)
-    for k=1:size(trainset,2)/128     %minibatch
+    for k=1:size(trainset,2)/128
         minibatch=trainset(:,(k-1)*128+1:k*128);
         minilabel=trainlabel(:,(k-1)*128+1:k*128);
         a1=w1'*minibatch;
@@ -23,8 +26,7 @@ while(1)
         w1=w1+rate*minibatch*delta1';
         w2=w2+rate*z*(t-y)';
     end
-    
-    accu_h=0;        %accuracy of hold_out
+    accu_h=0;
     a1_h=w1'*holdset;
     z_h=1./(1+exp(-a1_h));
     a2_h=w2'*z_h;
@@ -51,13 +53,9 @@ while(1)
         if(testlabel(i)==index_te)
             accu_te=accu_te+1;
         end
-        t_h(holdlabel(i)+1,i)=1;
-        t_te(testlabel(i)+1,i)=1;
     end
-    
     error_h=-sum(sum(log(y_h).*t_h));
     error_te=-sum(sum(log(y_te).*t_te));
-    
     if(epoch==0)
        error_before=error_h;
     elseif(error_before<error_h&&num>5)
@@ -66,7 +64,7 @@ while(1)
         num=num+1;
     else
         num=0;
-    end
+    end   
     error_before=error_h;
     
     a1_t=w1'*trainset;
@@ -76,27 +74,40 @@ while(1)
     y_t=exp(a2_t)./sumexp_t;
     t_t=zeros(10,50000);
     accu_t=0;    %accuracy of train set
-    for i=1:50000
-        res=max(y_t(:,i));
-        index=find(y_t(:,i)==res)-1;
-        if(trainlabel(i)==index)
-            accu_t=accu_t+1;
-        end
-        t_t(trainlabel(i)+1,i)=1;
-    end
     
+    for i=1:50000
+         res=max(y_t(:,i));
+         index=find(y_t(:,i)==res)-1;
+         if(trainlabel(i)==index)
+             accu_t=accu_t+1;
+         end
+         t_t(trainlabel(i)+1,i)=1;
+    end
     error_t=-sum(sum(log(y_t).*t_t));
-     epoch=epoch+1;
-     holderror(epoch)=error_h;
-     testerror(epoch)=error_te;
-     trainerror(epoch)=error_t;
-     trainaccu(epoch)=accu_t/50000;
-     holdaccu(epoch)=accu_h/10000;
-     testaccu(epoch)=accu_te/10000;
-     r=randperm(size(trainset, 2));
-     trainset=trainset(:,r);
-     trainlabel=trainlabel(:,r);
-     holdaccu(epoch)=accu_h/10000;
+    accu_h=0;
+    accu_te=0;
+    for i=1:10000
+        res_h=max(y_h(:,i));
+        res_te=max(y_te(:,i));
+        index_h=find(y_h(:,i)==res_h)-1;
+        index_te=find(y_te(:,i)==res_te)-1;
+        if(holdlabel(i)==index_h)
+            accu_h=accu_h+1;
+        end
+        if(testlabel(i)==index_te)
+            accu_te=accu_te+1;
+        end
+    end
+    epoch=epoch+1;
+    holderror(epoch)=error_h;
+    testerror(epoch)=error_te;
+    trainerror(epoch)=error_t;
+    trainaccu(epoch)=accu_t/50000;
+    holdaccu(epoch)=accu_h/10000;
+    testaccu(epoch)=accu_te/10000;
+    r=randperm(size(trainset, 2));
+    trainset=trainset(:,r);
+    trainlabel=trainlabel(:,r);
 end
 plot(1:epoch,trainaccu);
 hold on;
@@ -109,3 +120,6 @@ hold on;
 plot(1:epoch,holderror);
 hold on;
 plot(1:epoch, testerror);
+
+
+
