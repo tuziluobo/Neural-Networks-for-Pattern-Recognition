@@ -22,7 +22,7 @@ while(1)
         for i=1:128
             t(minilabel(i)+1,i)=1;
         end
-        delta1=z.*(1-z).*sum(w2*(t-y));
+        delta1=z.*(1-z).*(w2*(t-y));
         w1=w1+rate*minibatch*delta1';
         w2=w2+rate*z*(t-y)';
     end
